@@ -3,42 +3,40 @@ import java.io.*;
 
 
 public class HTTPEcho {
-    public static void main( String[] args) {
+    public static void main( String[] args) throws Exception{
+        String clientSentence;
+        String capitalizedSentence;
+        int port;
+        StringBuilder modifiedSentence = new StringBuilder();
 
-        ServerSocket serverSocket = new ServerSocket(0);
-
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-
-        BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-
+        port = Integer.parseInt(args[0]);
+        ServerSocket serverSocket = new ServerSocket(port);
 
         while(true){
+
+            Socket connectionSocket = serverSocket.accept();
+
+            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+            DataOutputStream outToServer = new DataOutputStream(connectionSocket.getOutputStream());
+
+            String s;
+            while((s = inFromServer.readLine()) != "\n" && s != null){
+                modifiedSentence.append(s + "\r\n");
+                //outToServer.println(s);
+            }
 
         }
 
 
-
-
-
-
-
-
-
-
-        String clientSentence;
-        String capitalizedSentence;
-
-
-
-        try
+       /** try
         {
-            ServerSocket server = new ServerSocket(0);
+            ServerSocket serverSocket = new ServerSocket(0);
         } catch (IOException e)
         {
             // handle exception
         }
 
-        ServerSocket welcomeSocket = new ServerSocket(6789);
+**//
 
         while(true) {
             Socket connectionSocket = welcomeSocket.accept();
