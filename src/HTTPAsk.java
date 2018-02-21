@@ -33,7 +33,6 @@ public class HTTPAsk {
 
             String temp = "blenda";
             while (temp.compareTo("") != 0) {
-
                 temp = inFromClient.readLine();
                 request.append(temp + "\r\n");
             }
