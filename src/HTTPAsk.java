@@ -14,14 +14,12 @@ public class HTTPAsk {
         int port;
         int clientPort;
 
-
         clientPort = Integer.parseInt(args[0]);
         ServerSocket webServerSocket = new ServerSocket(clientPort);
 
         Date date = new Date();
         String httpMessage = "HTTP/1.1 200 OK" + "/r" + "Date: " + date + "\r\n";
         System.out.println(date);
-
 
 
         while (true) {
@@ -44,105 +42,132 @@ public class HTTPAsk {
             String getRequest = request.toString();
             System.out.println("Check: " + getRequest);
 
-            Boolean validRequest = false;
+            //Boolean validRequest = false;
+            Boolean validRequest = true;
             String errorMessage = "no error";
 
-            String[] removeGet = getRequest.split(("\\s+"));
-            if(!removeGet[0].startsWith("/ask?)")){
-                errorMessage = "404";
-                validRequest = false;
-                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+
+            /**if(!getRequest.contains("/ask?")){
+                httpResponse.append("HTTP/1.1 403 Forbidden" + "\r\n");
                 outToClient.writeBytes(httpResponse.toString());
-            }
+            }else { */
 
-            String finalPath = toQuery(getRequest);
-            //check if there are more than one "?"
-            if (finalPath.contains("?")) {
-                errorMessage = "4xx";
-                validRequest = false;
-                httpResponse.append("HTTP/1.1 402 Payment Required" + "\r\n");
-                outToClient.writeBytes(httpResponse.toString());
-
-            }
-
-            else {
-                validRequest = true;
-            }
-
-
-            System.out.println("Check final path: " + finalPath);
-
-
-            String[] pairs = finalPath.split("&");
-            boolean validPairs = true;
-            for (int i = 0; i < pairs.length; i++) {
-                System.out.println("Check pairs: " + pairs[i]);
-                if (!pairs[i].contains("=")) {
-                    validPairs = false;
-                    break;
+                String[] splitRequest = toQueryArray(getRequest);
+                String finalPath = splitRequest[1];
+                System.out.println("Check final path: " + finalPath);
+/**
+                if(splitRequest[0].startsWith("/ask?")){
+                    httpResponse.append("HTTP/1.1 410 Gone" + "\r\n");
+                    outToClient.writeBytes(httpResponse.toString());
                 }
-            }
+                /**
 
-            if(!validPairs){
-                validRequest = false;
-                errorMessage = "404";
-                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                 if(splitrequest.contains("/ask?")){
+                 errorMessage = "404";
+                 validRequest = false;
+                 httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                 outToClient.writeBytes(httpResponse.toString());
+                 }
+
+                 String finalPath = toQuery(getRequest);
+                 //check if there are more than one "?"
+                 if (finalPath.contains("?")) {
+                 errorMessage = "4xx";
+                 validRequest = false;
+                 httpResponse.append("HTTP/1.1 402 Payment Required" + "\r\n");
+                 outToClient.writeBytes(httpResponse.toString());
+
+                 }
+
+                 else {
+                 validRequest = true;
+                 }
+
+
+                 System.out.println("Check final path: " + finalPath);
+                 **/
+
+                String[] pairs = finalPath.split("&");
+                boolean validPairs = true;
+                for (int i = 0; i < pairs.length; i++) {
+                    System.out.println("Check pairs: " + pairs[i]);
+                    if (!pairs[i].contains("=")) {
+                        validPairs = false;
+                        break;
+                    }
+                }
+
+
+                /**
+                 if(!validPairs){
+                 validRequest = false;
+                 errorMessage = "404";
+                 httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                 outToClient.writeBytes(httpResponse.toString());
+                 }
+
+
+                 **/
+
+
+                HashMap<String, String> parsedPairs = parsePairs(pairs);
+
+                boolean portAndHost = false;
+                if (parsedPairs.containsKey("hostname") && parsedPairs.containsKey("port")) {
+                    portAndHost = true;
+                } else {
+                    portAndHost = false;
+                }
+
+                /**
+                 if(!portAndHost){
+                 validRequest = false;
+                 errorMessage = "not port and host";
+                 httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                 outToClient.writeBytes(httpResponse.toString());
+                 }
+                 **/
+
+                boolean stringexists = false;
+                if (pairs.length > 2) {
+                    stringexists = true;
+                }
+
+                System.out.println("Check portandHost: " + portAndHost);
+                System.out.println("Check string: " + stringexists);
+
+                port = Integer.parseInt(parsedPairs.get("port"));
+                hostname = parsedPairs.get("hostname");
+
+                System.out.println("Check port: " + port);
+                System.out.println("Chesk hostname: " + hostname);
+
+
+                String tcpResponse;
+
+
+                if (stringexists) {
+                    tcpResponse = TCPClient.askServer(hostname, port, pairs[3]);
+                } else {
+                    tcpResponse = TCPClient.askServer(hostname, port, "");
+
+                }
+
+                System.out.println("Check TCP response: " + tcpResponse);
+
+                System.out.println(httpResponse.toString());
+
+                httpResponse.append(httpMessage);
+                httpResponse.append("\r\n");
+                httpResponse.append(tcpResponse);
+
                 outToClient.writeBytes(httpResponse.toString());
-             }
 
-
-            HashMap<String, String> parsedPairs = parsePairs(pairs);
-
-            boolean portAndHost = false;
-            if (parsedPairs.containsKey("hostname") && parsedPairs.containsKey("port")) {
-                portAndHost = true;
-            } else {
-                portAndHost = false;
-            }
-
-            if(!portAndHost){
-                validRequest = false;
-                errorMessage = "not port and host";
-                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
-                outToClient.writeBytes(httpResponse.toString());
-            }
-
-            boolean stringexists = false;
-            if (pairs.length > 2) {
-                stringexists = true;
-            }
-
-            System.out.println("Check portandHost: " + portAndHost);
-            System.out.println("Check string: " + stringexists);
-
-            port = Integer.parseInt(parsedPairs.get("port"));
-            hostname = parsedPairs.get("hostname");
-
-            System.out.println("Check port: " + port);
-            System.out.println("Chesk hostname: " + hostname);
-
-            String tcpResponse;
-            if (stringexists) {
-                tcpResponse = TCPClient.askServer(hostname, port, pairs[3]);
-            }
-            else {
-                tcpResponse = TCPClient.askServer(hostname, port, "");
-            }
-
-
-            System.out.println("Check TCP response: " + tcpResponse);
-            httpResponse.append(tcpResponse);
-            System.out.println(httpResponse.toString());
-
-            httpResponse.append(httpMessage);
-            httpResponse.append("\r\n");
-
-            outToClient.writeBytes(httpResponse.toString());
+            //}
 
             connectionSocket.close();
+
             httpResponse.setLength(0);
-
-
 
         }
 
