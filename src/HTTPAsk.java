@@ -44,123 +44,106 @@ public class HTTPAsk {
             String getRequest = request.toString();
             System.out.println("Check: " + getRequest);
 
-            if(!getRequest.contains("/ask?")){
-                httpResponse.append("HTTP/1.1 401 Not Found" + "\r\n");
+            Boolean validRequest = false;
+            String errorMessage = "no error";
+
+            String[] removeGet = getRequest.split(("\\s+"));
+            if(!removeGet[0].startsWith("/ask?)")){
+                errorMessage = "404";
+                validRequest = false;
+                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
                 outToClient.writeBytes(httpResponse.toString());
-                connectionSocket.close();
+            }
 
-            }else {
-
-                //remove Get and split at //ask?
-                String[] splitQuery = toQuery(getRequest);
-
-                Boolean validRequest = false;
-                //Boolean validRequest = true;
-                String errorMessage = "no error";
-
-                //check if URI starts with "/ask?"
-                if (!splitQuery[0].startsWith("/ask?")) {
-                    errorMessage = "404";
-                    validRequest = false;
-                    httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
-                    outToClient.writeBytes(httpResponse.toString());
-                    connectionSocket.close();
-                }
-                //check if there are more than one "?"
-                if (splitQuery[1].contains("?")) {
-                    errorMessage = "4xx";
-                    validRequest = false;
-                    httpResponse.append("HTTP/1.1 402 Payment Required" + "\r\n");
-                    outToClient.writeBytes(httpResponse.toString());
-                    connectionSocket.close();
-                } else {
-                    validRequest = true;
-                }
-
-                if (!validRequest) {
-                    httpResponse.append("404");
-                    outToClient.writeBytes(httpResponse.toString());
-                    connectionSocket.close();
-
-
-                } else {
-
-                    String finalPath = splitQuery[1];
-
-                    System.out.println("Check final path: " + finalPath);
-
-                    String[] pairs = finalPath.split("&");
-
-                    boolean validPairs = true;
-                    for (int i = 0; i < pairs.length; i++) {
-                        System.out.println("Check pairs: " + pairs[i]);
-                        if (!pairs[i].contains("=")) {
-                            validPairs = false;
-                            break;
-                        }
-                    }
-
-
-                    /**
-                     if(!validPairs){
-                     validRequest = false;
-                     errorMessage = "404";
-                     }
-
-                     **/
-
-                    HashMap<String, String> parsedPairs = parsePairs(pairs);
-
-                    boolean portAndHost = false;
-                    if (parsedPairs.containsKey("hostname") && parsedPairs.containsKey("port")) {
-                        portAndHost = true;
-                    } else {
-                        portAndHost = false;
-                    }
-
-                    boolean stringexists = false;
-                    if (pairs.length > 2) {
-                        stringexists = true;
-                    }
-
-                    System.out.println("Check portandHost: " + portAndHost);
-                    System.out.println("Check string: " + stringexists);
-
-                    port = Integer.parseInt(parsedPairs.get("port"));
-                    hostname = parsedPairs.get("hostname");
-
-                    System.out.println("Check port: " + port);
-                    System.out.println("Chesk hostname: " + hostname);
-
-                    String tcpResponse;
-                    if (validRequest && stringexists) {
-                        tcpResponse = TCPClient.askServer(hostname, port, pairs[3]);
-                    }
-                    if (validRequest && !stringexists) {
-                        tcpResponse = TCPClient.askServer(hostname, port, "");
-
-                    } else {
-                        tcpResponse = errorMessage;
-                    }
-
-                    System.out.println("Check TCP response: " + tcpResponse);
-
-                    httpResponse.append(tcpResponse);
-
-                    System.out.println(httpResponse.toString());
-
-                    httpResponse.append(httpMessage);
-                    httpResponse.append("\r\n");
-
-                    outToClient.writeBytes(httpResponse.toString());
-
-                    connectionSocket.close();
-
-                    httpResponse.setLength(0);
-
-                }
+            String finalPath = toQuery(getRequest);
+            //check if there are more than one "?"
+            if (finalPath.contains("?")) {
+                errorMessage = "4xx";
+                validRequest = false;
+                httpResponse.append("HTTP/1.1 402 Payment Required" + "\r\n");
+                outToClient.writeBytes(httpResponse.toString());
 
             }
+
+            else {
+                validRequest = true;
+            }
+
+
+            System.out.println("Check final path: " + finalPath);
+
+
+            String[] pairs = finalPath.split("&");
+            boolean validPairs = true;
+            for (int i = 0; i < pairs.length; i++) {
+                System.out.println("Check pairs: " + pairs[i]);
+                if (!pairs[i].contains("=")) {
+                    validPairs = false;
+                    break;
+                }
+            }
+
+            if(!validPairs){
+                validRequest = false;
+                errorMessage = "404";
+                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                outToClient.writeBytes(httpResponse.toString());
+             }
+
+
+            HashMap<String, String> parsedPairs = parsePairs(pairs);
+
+            boolean portAndHost = false;
+            if (parsedPairs.containsKey("hostname") && parsedPairs.containsKey("port")) {
+                portAndHost = true;
+            } else {
+                portAndHost = false;
+            }
+
+            if(!portAndHost){
+                validRequest = false;
+                errorMessage = "not port and host";
+                httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+                outToClient.writeBytes(httpResponse.toString());
+            }
+
+            boolean stringexists = false;
+            if (pairs.length > 2) {
+                stringexists = true;
+            }
+
+            System.out.println("Check portandHost: " + portAndHost);
+            System.out.println("Check string: " + stringexists);
+
+            port = Integer.parseInt(parsedPairs.get("port"));
+            hostname = parsedPairs.get("hostname");
+
+            System.out.println("Check port: " + port);
+            System.out.println("Chesk hostname: " + hostname);
+
+            String tcpResponse;
+            if (stringexists) {
+                tcpResponse = TCPClient.askServer(hostname, port, pairs[3]);
+            }
+            else {
+                tcpResponse = TCPClient.askServer(hostname, port, "");
+            }
+
+
+            System.out.println("Check TCP response: " + tcpResponse);
+            httpResponse.append(tcpResponse);
+            System.out.println(httpResponse.toString());
+
+            httpResponse.append(httpMessage);
+            httpResponse.append("\r\n");
+
+            outToClient.writeBytes(httpResponse.toString());
+
+            connectionSocket.close();
+            httpResponse.setLength(0);
+
+
+
         }
 
     }
@@ -178,7 +161,14 @@ public class HTTPAsk {
         return parsedPairs;
     }
 
-    public static String[] toQuery(String getRequest){
+    public static String toQuery(String getRequest){
+        String fullpath;
+        String[] splitQuery = getRequest.split("(?<=/ask\\?)");
+        fullpath = splitQuery[1];
+        return fullpath;
+
+    }
+    public static String[] toQueryArray(String getRequest){
         //Remove "GET"
         String[] removeGet = getRequest.split(("\\s+"));
         //divide path into "/ask?" and rest
