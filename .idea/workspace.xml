@@ -16,7 +16,7 @@
         <entry file="file://$PROJECT_DIR$/src/tcpclient/TCPClient.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="630">
-              <caret line="45" column="32" lean-forward="false" selection-start-line="45" selection-start-column="20" selection-end-line="45" selection-end-column="32" />
+              <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -88,8 +88,8 @@
         <option value="$PROJECT_DIR$/src/task1/TCPClient.java" />
         <option value="$PROJECT_DIR$/src/TCPAsk.java" />
         <option value="$PROJECT_DIR$/src/HTTPEcho.java" />
-        <option value="$PROJECT_DIR$/src/tcpclient/TCPClient.java" />
         <option value="$PROJECT_DIR$/src/HTTPAsk.java" />
+        <option value="$PROJECT_DIR$/src/tcpclient/TCPClient.java" />
       </list>
     </option>
   </component>
@@ -303,12 +303,12 @@
       <workItem from="1518688156126" duration="6836000" />
       <workItem from="1519044749617" duration="17388000" />
       <workItem from="1519226677087" duration="2617000" />
-      <workItem from="1519238691500" duration="7844000" />
+      <workItem from="1519238691500" duration="8092000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="52139000" />
+    <option name="totallyTimeSpent" value="52387000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -662,7 +662,7 @@
     <entry file="file://$PROJECT_DIR$/src/tcpclient/TCPClient.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="630">
-          <caret line="45" column="32" lean-forward="false" selection-start-line="45" selection-start-column="20" selection-end-line="45" selection-end-column="32" />
+          <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

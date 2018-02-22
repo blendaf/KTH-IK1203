@@ -56,35 +56,37 @@ public class TCPClient {
         StringBuilder modifiedSentence = new StringBuilder();
 
 
-
         //BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
-        Socket clientSocket = new Socket(hostname, port);
-        clientSocket.setSoTimeout(3000);
-
-
-        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        outToServer.writeBytes(sentence + '\n');
-
-        String serverString;
-
         try {
-            while((serverString = inFromServer.readLine()) != "\n" && serverString != null){
-                modifiedSentence.append(serverString + '\n');
+            Socket clientSocket = new Socket(hostname, port);
+            clientSocket.setSoTimeout(3000);
+
+            DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            outToServer.writeBytes(sentence + '\n');
+
+            String serverString;
+
+            try {
+                while ((serverString = inFromServer.readLine()) != "\n" && serverString != null) {
+                    modifiedSentence.append(serverString + '\n');
+                }
+
+            } catch (IOException e) {
+                clientSocket.close();
+                return modifiedSentence.toString();
             }
-        } catch (IOException e) {
+
             clientSocket.close();
             return modifiedSentence.toString();
+
+        } catch (Exception e) {
+            return "HTTP/1.1 404 " + "\r\n";
         }
-
-
-        clientSocket.close();
-        return modifiedSentence.toString();
-
-
     }
+
 }
 
 
