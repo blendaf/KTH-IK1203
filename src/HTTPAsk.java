@@ -139,8 +139,14 @@ public class HTTPAsk {
         System.out.println("Check hostname: " + hostname);
 
 
+
         String tcpResponse = TCPClient.askServer(hostname, port);
 
+        if(tcpResponse.contains("HTTP/1.1 404")){
+            httpResponse.append("HTTP/1.1 405 Forbidden" + "\r\n");
+            outToClient.writeBytes(httpResponse.toString());
+            return;
+        }
 
         System.out.println("Check TCP response: " + tcpResponse);
         System.out.println(httpResponse.toString());
