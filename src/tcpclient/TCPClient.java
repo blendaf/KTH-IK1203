@@ -42,9 +42,12 @@ public class TCPClient {
             clientSocket.close();
             return modifiedSentence.toString();
 
+
         }catch (Exception e){
             return "HTTP/1.1 404 " + "\r\n";
         }
+
+
 
 
     }
@@ -69,10 +72,12 @@ public class TCPClient {
 
             String serverString;
 
+
             try {
                 while ((serverString = inFromServer.readLine()) != "\n" && serverString != null) {
                     modifiedSentence.append(serverString + '\n');
                 }
+
 
             } catch (IOException e) {
                 clientSocket.close();
@@ -86,6 +91,7 @@ public class TCPClient {
             return "HTTP/1.1 404 " + "\r\n";
         }
     }
+
 
 }
 

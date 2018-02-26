@@ -67,7 +67,7 @@ public class HTTPAsk {
         String[] splitComp = getRequest.split(" ");
 
         if(splitComp.length < 3 ){
-            httpResponse.append("HTTP/1.1 400 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
@@ -76,7 +76,7 @@ public class HTTPAsk {
         String[] sectionSplit = fullPath.split("\\?");
 
         if(sectionSplit.length > 2){
-            httpResponse.append("HTTP/1.1 401 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
@@ -84,13 +84,13 @@ public class HTTPAsk {
         String path = sectionSplit[0];
         System.out.println(path);
         if(!path.equals("/ask")){
-            httpResponse.append("HTTP/1.1 402 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 404 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
 
         if(sectionSplit.length == 1){
-            httpResponse.append("HTTP/1.1 403 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
@@ -111,7 +111,7 @@ public class HTTPAsk {
 
 
         if(!validPairs){
-            httpResponse.append("HTTP/1.1 404 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
@@ -124,13 +124,14 @@ public class HTTPAsk {
         }
 
         if (!parsedPairs.containsKey("hostname") || !parsedPairs.containsKey("port")) {
-            httpResponse.append("HTTP/1.1 405 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
 
         //StringExists
-
+        Boolean stringExists = false;
+        String stringInput = "";
 
         port = Integer.parseInt(parsedPairs.get("port"));
         hostname = parsedPairs.get("hostname");
@@ -138,12 +139,18 @@ public class HTTPAsk {
         System.out.println("Check port: " + port);
         System.out.println("Check hostname: " + hostname);
 
+        if(parsedPairs.containsKey("string")){
+            stringExists = true;
+            stringInput = parsedPairs.get("string");
+        }
 
+        String tcpResponse;
 
-        String tcpResponse = TCPClient.askServer(hostname, port);
+        if(stringExists){ tcpResponse = TCPClient.askServer(hostname, port);}
+        else{ tcpResponse = TCPClient.askServer(hostname, port, stringInput);}
 
         if(tcpResponse.contains("HTTP/1.1 404")){
-            httpResponse.append("HTTP/1.1 405 Forbidden" + "\r\n");
+            httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
             outToClient.writeBytes(httpResponse.toString());
             return;
         }
