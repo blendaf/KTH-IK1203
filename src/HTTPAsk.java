@@ -15,9 +15,13 @@ public class HTTPAsk {
         int port;
         int clientPort;
 
-        clientPort = Integer.parseInt(args[0]);
-        ServerSocket webServerSocket = new ServerSocket(clientPort);
+        try {
+            clientPort = Integer.parseInt(args[0]);
+        }catch(Exception e){
+            clientPort = 8888;
+        }
 
+        ServerSocket webServerSocket = new ServerSocket(clientPort);
         Date date = new Date();
         String httpMessage = "HTTP/1.1 200 OK" + "/r" + "Date: " + date + "\r\n";
         System.out.println(date);
@@ -146,23 +150,24 @@ public class HTTPAsk {
 
         String tcpResponse;
 
-        if(stringExists){ tcpResponse = TCPClient.askServer(hostname, port);}
-        else{ tcpResponse = TCPClient.askServer(hostname, port, stringInput);}
+        try {
 
-        if(tcpResponse.contains("HTTP/1.1 404")){
-            httpResponse.append("HTTP/1.1 404 Not Found" + "\r\n");
+            if (stringExists) {
+                tcpResponse = TCPClient.askServer(hostname, port);
+            } else {
+                tcpResponse = TCPClient.askServer(hostname, port, stringInput);
+            }
+
+            httpResponse.append("HTTP/1.1 200 OK" + "/r" + "Date: " + date + "\r\n");
+            httpResponse.append("\r\n");
+            httpResponse.append(tcpResponse);
+
             outToClient.writeBytes(httpResponse.toString());
-            return;
+
+        }catch(Exception e) {
+            httpResponse.append("HTTP/1.1 400 Bad Request" + "\r\n");
+            outToClient.writeBytes(httpResponse.toString());
         }
-
-        System.out.println("Check TCP response: " + tcpResponse);
-        System.out.println(httpResponse.toString());
-
-        httpResponse.append("HTTP/1.1 200 OK" + "/r" + "Date: " + date + "\r\n");
-        httpResponse.append("\r\n");
-        httpResponse.append(tcpResponse);
-
-        outToClient.writeBytes(httpResponse.toString());
 
     }
 
