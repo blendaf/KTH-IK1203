@@ -1,13 +1,14 @@
 package tcpclient;
+
 import java.net.*;
 import java.io.*;
 
 public class TCPClient {
 
-    public static String askServer(String hostname, int port, String ToServer) throws  IOException {
+    public static String askServer(String hostname, int port, String ToServer) throws IOException {
         int counter = 0;
 
-        if(ToServer == null) {
+        if (ToServer == null) {
             return askServer(hostname, port);
         }
 
@@ -35,10 +36,12 @@ public class TCPClient {
 
         counter = 0;
         clientSocket.close();
+        System.out.println("still in tcpclient");
         return modifiedSentence.toString();
+
     }
 
-    public static String askServer(String hostname, int port) throws  IOException {
+    public static String askServer(String hostname, int port) throws IOException {
 
         int counter = 0;
         String sentence = "ping";
@@ -64,11 +67,8 @@ public class TCPClient {
             return modifiedSentence.toString();
         }
 
-        counter=0;
+        counter = 0;
         clientSocket.close();
         return modifiedSentence.toString();
     }
 }
-
-
-
